@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAPERCRAFT 本地原型 | Inspired by Flyeralarm</title>
+  <style>
+    :root {
+      --ink: #111318;
+      --muted: #606674;
+      --line: #d9dee7;
+      --soft: #f5f7fa;
+      --paper: #fffdf8;
+      --mint: #46c8a4;
+      --coral: #ff6b57;
+      --amber: #f7bd45;
+      --blue: #3178ff;
+      --violet: #8b5cf6;
+      --shadow: 0 22px 60px rgba(17, 19, 24, .14);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(70, 200, 164, .14), transparent 34%),
+        linear-gradient(315deg, rgba(255, 107, 87, .15), transparent 38%),
+        #f9faf6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    button, input, select { font: inherit; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 10px clamp(18px, 4vw, 56px);
+      background: #111318;
+      color: #ffffff;
+      font-size: 13px;
+    }
+
+    .topbar span {
+      color: rgba(255, 255, 255, .74);
+    }
+
+    .topbar strong { color: #ffffff; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 26px;
+      padding: 16px clamp(18px, 4vw, 56px);
+      background: rgba(255, 253, 248, .86);
+      border-bottom: 1px solid rgba(17, 19, 24, .08);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(from 140deg, var(--coral), var(--amber), var(--mint), var(--blue), var(--coral));
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 12px 24px rgba(49, 120, 255, .25);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: #333842;
+      font-size: 14px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn, .primary-btn, .ghost-btn {
+      min-height: 42px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .icon-btn {
+      width: 42px;
+      display: grid;
+      place-items: center;
+      background: #ffffff;
+      border: 1px solid var(--line);
+    }
+
+    .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 18px;
+      background: var(--ink);
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 14px 28px rgba(17, 19, 24, .16);
+    }
+
+    .ghost-btn {
+      padding: 0 16px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-weight: 750;
+    }
+
+    .hero {
+      min-height: calc(100vh - 116px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(360px, .98fr);
+      gap: clamp(24px, 5vw, 72px);
+      align-items: center;
+      padding: clamp(36px, 6vw, 82px) clamp(18px, 4vw, 56px) 48px;
+      overflow: hidden;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 7px 10px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #333842;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 0 6px rgba(70, 200, 164, .18);
+    }
+
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(48px, 6vw, 104px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: 24px 0 0;
+      color: #444b58;
+      font-size: clamp(17px, 2vw, 21px);
+      line-height: 1.62;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 40px;
+      max-width: 680px;
+    }
+
+    .stat {
+      padding: 18px;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(17, 19, 24, .09);
+      border-radius: var(--radius);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .print-stage {
+      position: relative;
+      min-height: 560px;
+      perspective: 1100px;
+    }
+
+    .machine {
+      position: absolute;
+      inset: 8% 0 auto 8%;
+      width: min(90%, 580px);
+      height: 370px;
+      background: linear-gradient(145deg, #1f2430, #0d1017);
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      transform: rotateX(3deg) rotateY(-10deg);
+      overflow: hidden;
+    }
+
+    .machine::before {
+      content: "";
+      position: absolute;
+      inset: 26px 28px auto;
+      height: 210px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(180deg, rgba(255,255,255,.08) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(135deg, #2a3140, #161a22);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.11);
+    }
+
+    .print-sheet {
+      position: absolute;
+      left: 50%;
+      bottom: 50px;
+      width: 300px;
+      height: 200px;
+      background:
+        linear-gradient(120deg, rgba(255, 107, 87, .82), transparent 32%),
+        linear-gradient(300deg, rgba(49, 120, 255, .76), transparent 38%),
+        linear-gradient(180deg, #fffef9, #f0f3f8);
+      border-radius: 7px;
+      border: 1px solid rgba(17, 19, 24, .08);
+      box-shadow: 0 18px 35px rgba(0, 0, 0, .26);
+      transform: translateX(-30%) rotate(-4deg);
+    }
+
+    .print-sheet::before {
+      content: "EXPRESS MENU";
+      position: absolute;
+      left: 22px;
+      top: 22px;
+      color: #10131a;
+      font-size: 26px;
+      font-weight: 900;
+      width: 150px;
+      line-height: .94;
+    }
+
+    .swatch {
+      position: absolute;
+      width: 126px;
+      height: 126px;
+      border-radius: 50%;
+      border: 10px solid #fff;
+      box-shadow: 0 18px 34px rgba(17, 19, 24, .22);
+    }
+
+    .swatch.one { right: 4%; top: 0; background: #ff6b57; }
+    .swatch.two { right: 18%; bottom: 8%; background: #46c8a4; }
+    .swatch.three { left: 0; bottom: 1%; background: #3178ff; }
+
+    section {
+      padding: 72px clamp(18px, 4vw, 56px);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 22px;
+      margin-bottom: 28px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1;
+    }
+
+    .section-head p {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .mega-map {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(17, 19, 24, .09);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 44px rgba(17, 19, 24, .08);
+      overflow: hidden;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 850;
+    }
+
+    .catalog {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+    }
+
+    .catalog-item {
+      min-height: 154px;
+      padding: 18px;
+      background: #fffdf8;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .catalog-item strong { font-size: 18px; }
+    .catalog-item span { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .mini-art {
+      width: 58px;
+      height: 46px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--color), rgba(255,255,255,.92));
+      box-shadow: inset 0 -10px 0 rgba(17,19,24,.08);
+    }
+
+    .flow {
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .flow-step b {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      background: #111318;
+      color: white;
+      border-radius: 8px;
+    }
+
+    .flow-step span { color: var(--muted); font-size: 13px; }
+    .flow-step small { color: #89909e; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .product-card {
+      min-height: 330px;
+      background: #ffffff;
+      border: 1px solid rgba(17, 19, 24, .09);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 14px 34px rgba(17, 19, 24, .08);
+    }
+
+    .product-visual {
+      position: relative;
+      height: 190px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .product-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+      opacity: .72;
+      filter: saturate(1.08) contrast(1.05);
+    }
+
+    .paper-stack, .box-stack, .rollup, .studio-board {
+      position: absolute;
+      inset: auto 20px 20px auto;
+      background: #fffdf8;
+      border: 1px solid rgba(17,19,24,.1);
+      box-shadow: 0 18px 26px rgba(17,19,24,.18);
+    }
+
+    .paper-stack {
+      width: 118px;
+      height: 86px;
+      transform: rotate(-8deg);
+    }
+
+    .paper-stack::before, .paper-stack::after {
+      content: "";
+      position: absolute;
+      inset: 8px -8px -8px 8px;
+      border: 1px solid rgba(17,19,24,.1);
+      background: #fff;
+      z-index: -1;
+    }
+
+    .box-stack {
+      width: 116px;
+      height: 92px;
+      background: linear-gradient(135deg, #fffdf8, #f1e0c2);
+      transform: rotate(5deg);
+    }
+
+    .rollup {
+      width: 82px;
+      height: 130px;
+      background: linear-gradient(150deg, #ffffff 15%, var(--mint) 16% 50%, var(--blue) 51%);
+    }
+
+    .studio-board {
+      width: 126px;
+      height: 94px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      padding: 10px;
+      background: #fffdf8;
+      transform: rotate(4deg);
+    }
+
+    .studio-board::before,
+    .studio-board::after {
+      content: "";
+      border-radius: 4px;
+      background: linear-gradient(135deg, #ff6b57, #f7bd45);
+    }
+
+    .studio-board::after {
+      background: linear-gradient(135deg, #3178ff, #46c8a4);
+    }
+
+    .product-card .body { padding: 18px; }
+    .product-card h3 { margin: 0 0 8px; font-size: 19px; }
+    .product-card p { margin: 0 0 16px; color: var(--muted); line-height: 1.5; font-size: 14px; }
+    .price { display: flex; justify-content: space-between; align-items: center; font-weight: 850; }
+    .price span { color: var(--coral); }
+
+    .configurator {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(330px, .55fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .config-main {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+      padding: 20px;
+      background: #ffffff;
+      border: 1px solid rgba(17, 19, 24, .09);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .preview {
+      min-height: 430px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(90deg, rgba(17,19,24,.05) 1px, transparent 1px) 0 0 / 22px 22px,
+        linear-gradient(180deg, rgba(17,19,24,.05) 1px, transparent 1px) 0 0 / 22px 22px,
+        #f5f7fa;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .flyer {
+      width: 190px;
+      aspect-ratio: .7;
+      padding: 20px;
+      background:
+        linear-gradient(135deg, var(--coral), transparent 34%),
+        linear-gradient(315deg, var(--blue), transparent 40%),
+        #fffdf8;
+      box-shadow: 0 24px 45px rgba(17, 19, 24, .28);
+      transform: rotate(-5deg);
+      transition: .25s ease;
+    }
+
+    .flyer h4 {
+      margin: 0;
+      width: 90%;
+      font-size: 28px;
+      line-height: .96;
+    }
+
+    .flyer .lines {
+      display: grid;
+      gap: 8px;
+      margin-top: 82px;
+    }
+
+    .flyer .lines i {
+      display: block;
+      height: 8px;
+      background: rgba(17, 19, 24, .75);
+      border-radius: 999px;
+    }
+
+    .options {
+      display: grid;
+      gap: 20px;
+    }
+
+    .option-group h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #333842;
+    }
+
+    .segmented {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      cursor: pointer;
+      font-weight: 750;
+      color: #343946;
+    }
+
+    .chip.active {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #ffffff;
+    }
+
+    .option-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 0 12px;
+    }
+
+    .quote {
+      position: sticky;
+      top: 92px;
+      padding: 22px;
+      background: #111318;
+      color: #ffffff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .quote h3 { margin: 0 0 20px; font-size: 24px; }
+
+    .quote-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.74);
+    }
+
+    .quote-line strong { color: #ffffff; }
+
+    .quote-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin: 22px 0;
+    }
+
+    .quote-total span { color: rgba(255,255,255,.66); }
+    .quote-total strong { font-size: 34px; }
+
+    .quote .primary-btn {
+      width: 100%;
+      background: var(--coral);
+      box-shadow: none;
+    }
+
+    .service-band {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .service {
+      min-height: 190px;
+      padding: 22px;
+      background: #ffffff;
+    }
+
+    .service b {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 22px;
+      background: var(--soft);
+      border-radius: 8px;
+      font-size: 20px;
+    }
+
+    .service h3 { margin: 0 0 10px; }
+    .service p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 14px; }
+
+    footer {
+      padding: 34px clamp(18px, 4vw, 56px);
+      background: #111318;
+      color: rgba(255, 255, 255, .68);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    footer strong { color: #ffffff; }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .mega-map,
+      .configurator,
+      .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .service-band { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .quote { position: static; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar { display: none; }
+      .nav {
+        grid-template-columns: 1fr auto;
+      }
+      .nav-links { display: none; }
+      .hero { min-height: auto; }
+      .hero-stats,
+      .catalog,
+      .product-grid,
+      .config-main,
+      .service-band,
+      .option-row {
+        grid-template-columns: 1fr;
+      }
+      .print-stage { min-height: 390px; }
+      .machine { height: 280px; }
+      .swatch { width: 86px; height: 86px; border-width: 7px; }
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span><strong>西安丰圣</strong> · 上传文件后一站式自助服务</span>
+    <span>企业采购 / 设计服务 / 批量报价 / 售后支持</span>
+  </div>
+
+  <nav class="nav" aria-label="主导航">
+    <a class="brand" href="#">
+      <span class="brand-mark">PF</span>
+      <span>PAPERCRAFT</span>
+    </a>
+    <div class="nav-links">
+      <a href="#catalog">产品目录</a>
+      <a href="#configurator">在线配置</a>
+      <a href="#service">生产服务</a>
+    </div>
+    <div class="nav-actions">
+      <button class="icon-btn" title="搜索" aria-label="搜索">⌕</button>
+      <button class="icon-btn" title="账户" aria-label="账户">◐</button>
+      <button class="primary-btn">购物车 · ¥0</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><span class="pulse"></span> 纸张的艺术</div>
+      <h1>从高端纸张到精美物料，一站式配置、报价、下单。</h1>
+      <p>从灵感选择、产品配置、即时报价到文件上传和生产追踪，用户可以在一个清晰的流程里完成复杂需求采购。</p>
+      <div class="hero-actions">
+        <a class="primary-btn" href="#configurator">开始配置产品</a>
+        <a class="ghost-btn" href="#catalog">浏览产品目录</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong>9+</strong><span>核心商品大类</span></div>
+        <div class="stat"><strong>7 步</strong><span>标准配置链路</span></div>
+        <div class="stat"><strong>1 页</strong><span>一站式贴心服务</span></div>
+      </div>
+    </div>
+
+    <div class="print-stage" aria-hidden="true">
+      <div class="machine"></div>
+      <div class="print-sheet"></div>
+      <div class="swatch one"></div>
+      <div class="swatch two"></div>
+      <div class="swatch three"></div>
+    </div>
+  </header>
+
+  <section id="catalog">
+    <div class="section-head">
+      <h2>产品目录</h2>
+      <p>“明确商品 + 使用场景”双入口。承载海量SKU，让用户从明确商品或模糊需求两条路径进入。</p>
+    </div>
+
+    <div class="mega-map">
+      <div class="panel">
+        <div class="panel-title">
+          <span>一级产品目录</span>
+          <small>适合做 mega menu</small>
+        </div>
+        <div class="catalog">
+          <a class="catalog-item" href="#configurator">
+            <div class="mini-art" style="--color:#ff6b57"></div>
+            <strong>传单 / 折页</strong>
+            <span>尺寸、折法、纸张、覆膜、数量。</span>
+          </a>
+          <a class="catalog-item" href="#configurator">
+            <div class="mini-art" style="--color:#3178ff"></div>
+            <strong>名片 / 办公</strong>
+            <span>常规名片、信纸、信封、贴纸。</span>
+          </a>
+          <a class="catalog-item" href="#configurator">
+            <div class="mini-art" style="--color:#46c8a4"></div>
+            <strong>包装 / 标签</strong>
+            <span>纸盒、吊牌、卷标、物流贴。</span>
+          </a>
+          <a class="catalog-item" href="#configurator">
+            <div class="mini-art" style="--color:#f7bd45"></div>
+            <strong>海报 / 展示</strong>
+            <span>海报、画布、背板、KT 板。</span>
+          </a>
+          <a class="catalog-item" href="#configurator">
+            <div class="mini-art" style="--color:#8b5cf6"></div>
+            <strong>展会 / 活动</strong>
+            <span>易拉宝、展架、旗帜、台卡。</span>
+          </a>
+          <a class="catalog-item" href="#configurator">
+            <div class="mini-art" style="--color:#111318"></div>
+            <strong>学校 / 毕业设计</strong>
+            <span>适合学生毕业设计，支持自定义设计、纸张选择与打印。</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>商品配置链路</span>
+          <small>每个 SKU 复用同一套流程</small>
+        </div>
+        <div class="flow">
+          <div class="flow-step"><b>1</b><div><strong>选择产品规格</strong><br><span>尺寸、页面数、折法、成品方向</span></div><small>Product</small></div>
+          <div class="flow-step"><b>2</b><div><strong>选择材料与工艺</strong><br><span>克重、颜色、覆膜、烫金、打孔</span></div><small>Options</small></div>
+          <div class="flow-step"><b>3</b><div><strong>数量和交期报价</strong><br><span>按数量阶梯、物流时效、税费联动</span></div><small>Pricing</small></div>
+          <div class="flow-step"><b>4</b><div><strong>上传文件与预检</strong><br><span>尺寸、出血、色彩、分辨率检查</span></div><small>Preflight</small></div>
+          <div class="flow-step"><b>5</b><div><strong>账户、支付、生产追踪</strong><br><span>企业客户复购、发票、订单状态</span></div><small>Checkout</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>商品卡片</h2>
+      <p>卡片不是普通商城货架，把用户带入对应配置器。真实质感强化购买信心。</p>
+    </div>
+
+    <div class="product-grid">
+      <article class="product-card">
+        <div class="product-visual" style="--bg:#ffe4df">
+          <img src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?auto=format&fit=crop&w=900&q=80" alt="纸张纹理">
+          <span class="paper-stack"></span>
+        </div>
+        <div class="body">
+          <h3>A5 活动传单</h3>
+          <p>适合餐饮、门店和活动促销，支持亮膜、哑膜和局部 UV。</p>
+          <div class="price"><small>500 张起</small><span>¥168</span></div>
+        </div>
+      </article>
+
+      <article class="product-card">
+        <div class="product-visual" style="--bg:#e2f4ff">
+          <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80" alt="包装与纸盒">
+          <span class="box-stack"></span>
+        </div>
+        <div class="body">
+          <h3>品牌包装盒</h3>
+          <p>按尺寸、纸材和表面工艺报价，适合 DTC 与礼盒场景。</p>
+          <div class="price"><small>100 个起</small><span>¥420</span></div>
+        </div>
+      </article>
+
+      <article class="product-card">
+        <div class="product-visual" style="--bg:#ddf6ee">
+          <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=900&q=80" alt="展会活动灯光">
+          <span class="rollup"></span>
+        </div>
+        <div class="body">
+          <h3>展会易拉宝</h3>
+          <p>展会、招聘会、开业现场常用，含架体、画面和运输保护。</p>
+          <div class="price"><small>1 套起</small><span>¥118</span></div>
+        </div>
+      </article>
+
+      <article class="product-card">
+        <div class="product-visual" style="--bg:#fff1cd">
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="学生制作毕业设计作品">
+          <span class="studio-board"></span>
+        </div>
+        <div class="body">
+          <h3>学生毕业设计</h3>
+          <p>适合学生毕业设计，支持自定义设计、纸张选择与打印。</p>
+          <div class="price"><small>20 件起</small><span>¥39/件</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="configurator">
+    <div class="section-head">
+      <h2>核心页：商品配置器。</h2>
+      <p>商业价值集中在这个页面：用户每改一个参数，预览、交期和价格都要即时反馈。下面是可交互的本地版。</p>
+    </div>
+
+    <div class="configurator">
+      <div class="config-main">
+        <div class="preview">
+          <div class="flyer" id="flyerPreview">
+            <h4>OPENING WEEK</h4>
+            <div class="lines"><i></i><i style="width:72%"></i><i style="width:48%"></i></div>
+          </div>
+        </div>
+
+        <div class="options">
+          <div class="option-group">
+            <h3>格式</h3>
+            <div class="segmented" data-group="size">
+              <button class="chip active" data-value="A5" data-price="0">A5</button>
+              <button class="chip" data-value="A4" data-price="72">A4</button>
+              <button class="chip" data-value="DL" data-price="-20">DL 长条</button>
+              <button class="chip" data-value="Square" data-price="35">方形</button>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <h3>纸张</h3>
+            <div class="segmented" data-group="paper">
+              <button class="chip active" data-value="170g 铜版纸" data-price="0">170g 铜版纸</button>
+              <button class="chip" data-value="250g 高白卡" data-price="64">250g 高白卡</button>
+              <button class="chip" data-value="300g 环保纸" data-price="88">300g 环保纸</button>
+            </div>
+          </div>
+
+          <div class="option-row">
+            <label>
+              数量
+              <select id="qty">
+                <option value="500">500 张</option>
+                <option value="1000">1000 张</option>
+                <option value="2500">2500 张</option>
+                <option value="5000">5000 张</option>
+              </select>
+            </label>
+            <label>
+              交期
+              <select id="speed">
+                <option value="standard">标准 5-7 天</option>
+                <option value="express">加急 72 小时</option>
+                <option value="overnight">极速 24 小时</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="option-group">
+            <h3>表面工艺</h3>
+            <div class="segmented" data-group="finish">
+              <button class="chip active" data-value="无覆膜" data-price="0">无覆膜</button>
+              <button class="chip" data-value="哑膜" data-price="58">哑膜</button>
+              <button class="chip" data-value="亮膜" data-price="58">亮膜</button>
+              <button class="chip" data-value="局部 UV" data-price="128">局部 UV</button>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <h3>主视觉色</h3>
+            <div class="segmented" data-group="color">
+              <button class="chip active" data-color="#ff6b57">珊瑚红</button>
+              <button class="chip" data-color="#3178ff">电光蓝</button>
+              <button class="chip" data-color="#46c8a4">薄荷绿</button>
+              <button class="chip" data-color="#8b5cf6">紫罗兰</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="quote">
+        <h3>即时报价</h3>
+        <div class="quote-line"><span>产品</span><strong id="qProduct">A5 活动传单</strong></div>
+        <div class="quote-line"><span>纸张</span><strong id="qPaper">170g 铜版纸</strong></div>
+        <div class="quote-line"><span>工艺</span><strong id="qFinish">无覆膜</strong></div>
+        <div class="quote-line"><span>交期</span><strong id="qSpeed">标准</strong></div>
+        <div class="quote-total"><span>含基础印刷与包装</span><strong id="qTotal">¥168</strong></div>
+        <button class="primary-btn">上传文件并加入购物车</button>
+      </aside>
+    </div>
+  </section>
+
+  <section id="service">
+    <div class="section-head">
+      <h2>服务闭环让平台可复购。</h2>
+      <p>在线印刷平台不能只做商品页，必须把文件、生产、物流和企业采购一起接住。</p>
+    </div>
+    <div class="service-band">
+      <div class="service"><b>✓</b><h3>自动预检</h3><p>上传后检查出血、分辨率、色彩模式、字体嵌入，减少生产沟通成本。</p></div>
+      <div class="service"><b>↻</b><h3>复购模板</h3><p>保留历史订单配置和设计文件，适合门店连锁、展会周期和销售物料。</p></div>
+      <div class="service"><b>▣</b><h3>企业报价</h3><p>为大客户开放批量阶梯、成本中心、发票抬头和审批流程。</p></div>
+      <div class="service"><b>→</b><h3>生产追踪</h3><p>订单状态从文件通过、印前、生产、质检到发货，透明可查。</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <strong>PAPERCRAFT Prototype</strong>
+    <span>一站式高端纸张贴心服务 HTML 原型 · 视觉设计</span>
+  </footer>
+
+  <script>
+    const state = {
+      size: { label: "A5", price: 0 },
+      paper: { label: "170g 铜版纸", price: 0 },
+      finish: { label: "无覆膜", price: 0 },
+      qty: 500,
+      speed: "standard"
+    };
+
+    const speedMap = {
+      standard: { label: "标准", multiplier: 1 },
+      express: { label: "72 小时", multiplier: 1.18 },
+      overnight: { label: "24 小时", multiplier: 1.36 }
+    };
+
+    function price() {
+      const qtyFactor = state.qty / 500;
+      const optionPrice = state.size.price + state.paper.price + state.finish.price;
+      return Math.round((168 * qtyFactor + optionPrice) * speedMap[state.speed].multiplier);
+    }
+
+    function updateQuote() {
+      document.getElementById("qProduct").textContent = state.size.label + " 活动传单";
+      document.getElementById("qPaper").textContent = state.paper.label;
+      document.getElementById("qFinish").textContent = state.finish.label;
+      document.getElementById("qSpeed").textContent = speedMap[state.speed].label;
+      document.getElementById("qTotal").textContent = "¥" + price().toLocaleString("zh-CN");
+    }
+
+    document.querySelectorAll(".segmented").forEach((group) => {
+      group.addEventListener("click", (event) => {
+        const button = event.target.closest(".chip");
+        if (!button) return;
+        group.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("active"));
+        button.classList.add("active");
+
+        const key = group.dataset.group;
+        if (key === "color") {
+          document.getElementById("flyerPreview").style.setProperty("--coral", button.dataset.color);
+          return;
+        }
+
+        state[key] = {
+          label: button.dataset.value,
+          price: Number(button.dataset.price || 0)
+        };
+        updateQuote();
+      });
+    });
+
+    document.getElementById("qty").addEventListener("change", (event) => {
+      state.qty = Number(event.target.value);
+      updateQuote();
+    });
+
+    document.getElementById("speed").addEventListener("change", (event) => {
+      state.speed = event.target.value;
+      updateQuote();
+    });
+
+    updateQuote();
+  </script>
+</body>
+</html>
